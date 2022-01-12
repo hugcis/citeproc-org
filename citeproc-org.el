@@ -475,7 +475,7 @@ the n-th cite occurring in the footnote."
   (let* ((elt-types (list 'footnote-reference mode))
 	 (elts (org-element-map parsed-buffer elt-types
 		 (lambda (x)
-		   (when (or (memq (org-element-type x) '(footnote-reference citation))
+		   (when (or (memq (org-element-type x) '(footnote-reference cite))
 			     (member (org-element-property :type x) org-ref-cite-types))
 		     x))))
 	 cite-elts cites-and-notes
@@ -558,7 +558,7 @@ items. Return the list of corresponding rendered citations."
   (let* ((is-note-style (citeproc-style-cite-note (citeproc-proc-style proc)))
 	 (parser-fun (pcase mode
 		       ('link #'citeproc-org--parse-orgref-link)
-		       ('citation #'citeproc-org--parse-org-cite)))
+		       ('cite #'citeproc-org--parse-org-cite)))
 	 (citations (--map (funcall parser-fun
 				    (plist-get it :elt)
 				    (plist-get it :fn-no)
@@ -591,9 +591,9 @@ items. Return the list of corresponding rendered citations."
 (defun citeproc-org--determine-mode (parsed-buffer)
   "Determine the type of citation entities used in PARSED-BUFFER.
 Return `link' `citation' or nil if there are no citations."
-  (org-element-map parsed-buffer '(link citation)
+  (org-element-map parsed-buffer '(link cite)
     (lambda (x)
-      (cond ((eq (org-element-type x) 'citation) 'citation)
+      (cond ((eq (org-element-type x) 'cite) 'cite)
 	    ((member (org-element-property :type x)
 		     org-ref-cite-types)
 	     'link)
@@ -663,7 +663,7 @@ MODE is either `link' or `citation'. Returns a (BIB-FILE
 BIB-ELT-BEGIN BIB-ELT-END PRINT-BIB) list."
   (pcase mode
     ('link (citeproc-org--get-link-bib-info parsed-buffer))
-    ('citation (citeproc-org--get-keyword-bib-info parsed-buffer))))
+    ('cite (citeproc-org--get-keyword-bib-info parsed-buffer))))
 
 (defun citeproc-org--citelink-content-to-legacy (content)
   "Convert a parsed citelink CONTENT to a legacy one."
